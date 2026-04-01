@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import sys
+sys.path.append('../utils')
+
+import msg
+
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
@@ -20,7 +25,7 @@ from hw1_imitation.data import (
     load_pusht_zarr,
 )
 from hw1_imitation.model import build_policy, PolicyType
-from hw1_imitation.evaluation import Logger
+from hw1_imitation.evaluation import Logger, evaluate_policy
 
 LOGDIR_PREFIX = "exp"
 
@@ -93,6 +98,9 @@ def run_training(config: TrainConfig) -> None:
 
     zarr_path = download_pusht(config.data_dir)
     states, actions, episode_ends = load_pusht_zarr(zarr_path)
+    msg.info(f'Data Loaded:')
+    msg.info(f'states: {states.shape}')
+    msg.info(f'actions: {actions.shape}')
     normalizer = Normalizer.from_data(states, actions)
 
     dataset = PushtChunkDataset(
@@ -128,8 +136,29 @@ def run_training(config: TrainConfig) -> None:
     logger = Logger(log_dir)
 
     ### TODO: PUT YOUR MAIN TRAINING LOOP HERE ###
+    optim = torch.optim.Adam(model.parameters(), lr=config.lr)
+    log_interval = 20
+
+    for i in range(config.num_epochs):
+        train_loss_acc = 0
+        train_count = 0
+        for state, action in loader:
+            loss = model.compute_loss(state.to(device), action.to(device))
+            optim.zero_grad()
+            loss.backward()
+            optim.step()
+
+            train_loss_acc += loss.item()
+            train_count += 1;
+
+        train_loss_avg = train_loss_acc / train_count
+
+        if i % log_interval == 0:
+            msg.info(f'Epoch #{i} / #{config.num_epochs}: Training Loss: {train_loss_avg}')
+            evaluate_policy(model, normalizer, device, config.chunk_size, config.video_size, config.num_video_episodes, config.flow_num_steps, i, logger)
 
     logger.dump_for_grading()
+    wandb.finish()
 
 
 def main() -> None:
