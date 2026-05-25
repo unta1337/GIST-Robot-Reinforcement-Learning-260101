@@ -186,7 +186,50 @@ mpc_strategy: random
 
 ## Problem 4
 ### Result
+#### Orig
+|Loss|Eval Return|
+|:-:|:-:|
+|![](./pics/reacher_orig_loss.png)|![](./pics/reacher_orig_eval.png)|
+
+#### Ensemble
+|-|Loss|Eval Return|
+|:-:|:-:|:-:|
+|Less (1)|![](./pics/reacher_en_less_loss.png)|![](./pics/reacher_en_less_eval.png)|
+|More (5)|![](./pics/reacher_en_more_loss.png)|![](./pics/reacher_en_more_eval.png)|
+
+#### Action Sequence
+|-|Loss|Eval Return|
+|:-:|:-:|:-:|
+|Less (500)|![](./pics/reacher_as_less_loss.png)|![](./pics/reacher_as_less_eval.png)|
+|More (2000)|![](./pics/reacher_as_more_loss.png)|![](./pics/reacher_as_more_eval.png)|
+
+#### Horizon
+|-|Loss|Eval Return|
+|:-:|:-:|:-:|
+|Less (5)|![](./pics/reacher_ho_less_loss.png)|![](./pics/reacher_ho_less_eval.png)|
+|More (20)|![](./pics/reacher_ho_more_loss.png)|![](./pics/reacher_ho_more_eval.png)|
+
 ### Discussion
+#### Ensemble Size
+The ensemble size plays a crucial role in the robustness of the dynamics model.
+- **Ensemble Size 1 (-289.07)**: With only a single model, the agent is highly susceptible to model inaccuracies and overfitting. The planning process can exploit regions where the single model's predictions are wrong, leading to poor real-world performance.
+- **Ensemble Size 3 (Baseline, -261.08)**: Increasing the ensemble size significantly improves the evaluation return. By averaging predictions (or taking the mean of the next state), we reduce the impact of individual model errors and provide a more stable signal for MPC.
+- **Ensemble Size 5 (-260.59)**: Further increasing the ensemble size provides marginal benefits. While it theoretically offers more robustness, the complexity of the Reacher environment might not require such a large ensemble, or the gains are diminishing compared to the increased computational cost.
+
+#### Number of Action Sequences
+The number of action sequences sampled in the random shooting MPC determines the quality of the approximate optimization.
+- **500 Sequences (-270.46)**: Sampling fewer sequences leads to a coarser search of the action space. The probability of finding a high-reward trajectory decreases, resulting in lower evaluation returns.
+- **1000 Sequences (Baseline, -261.08)**: Increasing the samples to 1000 provides better coverage, allowing the agent to find more effective plans.
+- **2000 Sequences (-261.18)**: Doubling the samples again shows almost no improvement over 1000. This suggests that 1000 sequences are already sufficient to find near-optimal paths in the Reacher environment's relatively low-dimensional action space.
+
+#### Planning Horizon
+The planning horizon represents the trade-off between foresight and model reliability.
+- **Horizon 5 (-260.96)**: A shorter horizon focuses on immediate rewards. In the Reacher task, where the goal is often reachable within a few steps if the arm is already close, a horizon of 5 performs similarly to the baseline of 10.
+- **Horizon 10 (Baseline, -261.08)**: The default horizon provides a good balance, allowing the agent to plan far enough ahead to reach distant targets while maintaining prediction accuracy.
+- **Horizon 20 (-296.78)**: Surprisingly, a longer horizon significantly degrades performance. This is a classic issue in model-based RL: **compounding model error**. As the model predicts further into the future, small inaccuracies in each step accumulate, making the predictions at step 20 highly unreliable. The MPC optimization then bases its decisions on these "hallucinated" future states, leading to poor action choices in the current step.
+
+In conclusion, for the Reacher task, an ensemble size of 3 and 1000 action sequences are sufficient, while a moderate planning horizon of 10 is optimal to avoid the pitfalls of compounding prediction errors.
+
 ### Command Lines and Arguments
 ```pwsh
 > python cs285/scripts/run_hw4.py -cfg experiments/mpc/reacher_ablations/orig.yaml
