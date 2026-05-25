@@ -188,16 +188,228 @@ mpc_strategy: random
 ### Result
 ### Discussion
 ### Command Lines and Arguments
+```pwsh
+> python cs285/scripts/run_hw4.py -cfg experiments/mpc/reacher_ablations/orig.yaml
+
+> python cs285/scripts/run_hw4.py -cfg experiments/mpc/reacher_ablations/ensemble_less.yaml
+> python cs285/scripts/run_hw4.py -cfg experiments/mpc/reacher_ablations/ensemble_more.yaml
+
+> python cs285/scripts/run_hw4.py -cfg experiments/mpc/reacher_ablations/action_seq_less.yaml
+> python cs285/scripts/run_hw4.py -cfg experiments/mpc/reacher_ablations/action_seq_more.yaml
+
+> python cs285/scripts/run_hw4.py -cfg experiments/mpc/reacher_ablations/horizon_less.yaml
+> python cs285/scripts/run_hw4.py -cfg experiments/mpc/reacher_ablations/horizon_more.yaml
+```
+
 #### Configs
+`orig.yaml`
+```yaml
+env_name: reacher-cs285-v0
+exp_name: reacher_ablation
+
+base_config: mpc
+num_layers: 2
+hidden_size: 250
+
+num_iters: 15
+initial_batch_size: 5000
+batch_size: 800
+num_agent_train_steps_per_iter: 1000
+num_eval_trajectories: 10
+mpc_strategy: random
+
+# change these!
+mpc_num_action_sequences: 1000
+mpc_horizon: 10
+ensemble_size: 3
+```
+
+`ensemble_less.yaml`
+```yaml
+env_name: reacher-cs285-v0
+exp_name: reacher_ablation_ensemble_less
+
+base_config: mpc
+num_layers: 2
+hidden_size: 250
+
+num_iters: 15
+initial_batch_size: 5000
+batch_size: 800
+num_agent_train_steps_per_iter: 1000
+num_eval_trajectories: 10
+mpc_strategy: random
+
+# change these!
+mpc_num_action_sequences: 1000
+mpc_horizon: 10
+ensemble_size: 1
+```
+
+`ensemble_more.yaml`
+```yaml
+env_name: reacher-cs285-v0
+exp_name: reacher_ablation_ensemble_more
+
+base_config: mpc
+num_layers: 2
+hidden_size: 250
+
+num_iters: 15
+initial_batch_size: 5000
+batch_size: 800
+num_agent_train_steps_per_iter: 1000
+num_eval_trajectories: 10
+mpc_strategy: random
+
+# change these!
+mpc_num_action_sequences: 1000
+mpc_horizon: 10
+ensemble_size: 5
+```
+
+`action_seq_less.yaml`
+```yaml
+env_name: reacher-cs285-v0
+exp_name: reacher_ablation_action_seq_less
+
+base_config: mpc
+num_layers: 2
+hidden_size: 250
+
+num_iters: 15
+initial_batch_size: 5000
+batch_size: 800
+num_agent_train_steps_per_iter: 1000
+num_eval_trajectories: 10
+mpc_strategy: random
+
+# change these!
+mpc_num_action_sequences: 500
+mpc_horizon: 10
+ensemble_size: 3
+```
+
+`action_seq_more.yaml`
+```yaml
+env_name: reacher-cs285-v0
+exp_name: reacher_ablation_action_seq_more
+
+base_config: mpc
+num_layers: 2
+hidden_size: 250
+
+num_iters: 15
+initial_batch_size: 5000
+batch_size: 800
+num_agent_train_steps_per_iter: 1000
+num_eval_trajectories: 10
+mpc_strategy: random
+
+# change these!
+mpc_num_action_sequences: 2000
+mpc_horizon: 10
+ensemble_size: 3
+```
+
+`horizon_less.yaml`
+```yaml
+env_name: reacher-cs285-v0
+exp_name: reacher_ablation_horizon_less
+
+base_config: mpc
+num_layers: 2
+hidden_size: 250
+
+num_iters: 15
+initial_batch_size: 5000
+batch_size: 800
+num_agent_train_steps_per_iter: 1000
+num_eval_trajectories: 10
+mpc_strategy: random
+
+# change these!
+mpc_num_action_sequences: 1000
+mpc_horizon: 5
+ensemble_size: 3
+```
+
+`horizon_more.yaml`
+```yaml
+env_name: reacher-cs285-v0
+exp_name: reacher_ablation_horizon_more
+
+base_config: mpc
+num_layers: 2
+hidden_size: 250
+
+num_iters: 15
+initial_batch_size: 5000
+batch_size: 800
+num_agent_train_steps_per_iter: 1000
+num_eval_trajectories: 10
+mpc_strategy: random
+
+# change these!
+mpc_num_action_sequences: 1000
+mpc_horizon: 20
+ensemble_size: 3
+```
 
 ## Problem 5
 ### Result
 ### Discussion
 ### Command Lines and Arguments
+```pwsh
+> python cs285/scripts/run_hw4.py -cfg experiments/mpc/halfcheetah_cem/orig.yaml
+> python cs285/scripts/run_hw4.py -cfg experiments/mpc/halfcheetah_cem/iter2.yaml
+```
+
 #### Configs
+`orig.yaml`
+```yaml
+env_name: cheetah-cs285-v0
+exp_name: cheetah_cem
+
+base_config: mpc
+num_layers: 2
+hidden_size: 250
+
+num_iters: 5
+initial_batch_size: 5000
+batch_size: 5000
+num_agent_train_steps_per_iter: 1500
+num_eval_trajectories: 10
+mpc_horizon: 15
+mpc_strategy: cem
+cem_num_iters: 4
+cem_num_elites: 5
+cem_alpha: 1
+```
+
+`iter2.yaml`
+```yaml
+env_name: cheetah-cs285-v0
+exp_name: cheetah_cem_iter2
+
+base_config: mpc
+num_layers: 2
+hidden_size: 250
+
+num_iters: 5
+initial_batch_size: 5000
+batch_size: 5000
+num_agent_train_steps_per_iter: 1500
+num_eval_trajectories: 10
+mpc_horizon: 15
+mpc_strategy: cem
+cem_num_iters: 2
+cem_num_elites: 5
+cem_alpha: 1
+```
 
 ## Problem 6
-### Result
-### Discussion
-### Command Lines and Arguments
-#### Configs
+Since hw4 from [homework_spring2026](https://github.com/berkeleydeeprlcourse/homework_spring2026/tree/main) is differ from our hw4, I presume hw4 is from [homework_fall2023](https://github.com/berkeleydeeprlcourse/homework_fall2023) and used it.  
+But those code bases are not quite competiable with each other; SAC from version Spring-2026 is not quite working well with version Fall-2023.
+
+I couldn't make the code from Spring-2026 working with Fall-2023.
